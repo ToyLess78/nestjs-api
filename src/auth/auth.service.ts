@@ -1,24 +1,37 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcryptjs';
-import { v4 as uuidv4 } from 'uuid';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
+import { ExceptionMessages } from './constants/exception-messages';
+import { UserDto } from './interfaces/auth-response.interface';
 
 @Injectable()
 export class AuthService {
-  private users = [];
-
-  constructor(private jwtService: JwtService) {}
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+    private jwtService: JwtService,
+  ) {}
 
   async signUp(email: string, password: string, fullName?: string) {
+    const existingUser = await this.usersRepository.findOne({
+      where: { email },
+    });
+    if (existingUser) {
+      throw new BadRequestException(ExceptionMessages.USER_ALREADY_EXISTS);
+    }
+
     const hashedPassword = await bcrypt.hash(password, 8);
-    const user = {
-      id: uuidv4(),
+
+    const user = this.usersRepository.create({
       email,
       password: hashedPassword,
       fullName: fullName || '',
-      createdAt: new Date(),
-    };
-    this.users.push(user);
+    });
+
+    await this.usersRepository.save(user);
 
     return {
       user: {
@@ -32,9 +45,9 @@ export class AuthService {
   }
 
   async signIn(email: string, password: string) {
-    const user = this.users.find((user) => user.email === email);
+    const user = await this.usersRepository.findOne({ where: { email } });
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      throw new Error('Invalid credentials');
+      throw new BadRequestException(ExceptionMessages.INVALID_CREDENTIALS);
     }
 
     return {
@@ -48,18 +61,17 @@ export class AuthService {
     };
   }
 
-  private generateToken(user: any) {
+  private generateToken(user: UserDto) {
     const payload = { id: user.id };
     return this.jwtService.sign(payload);
   }
 
-  findUser(id: string) {
-    return this.users.find((user) => user.id === id);
+  async findUser(id: string) {
+    return this.usersRepository.findOne({ where: { id } });
   }
 
-  deleteUser(id: string): boolean {
-    const initialLength = this.users.length;
-    this.users = this.users.filter((user) => user.id !== id);
-    return this.users.length < initialLength;
+  async deleteUser(id: string): Promise<boolean> {
+    const result = await this.usersRepository.delete(id);
+    return result.affected > 0;
   }
 }

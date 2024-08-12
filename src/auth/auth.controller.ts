@@ -1,46 +1,54 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
   Get,
   Post,
-  Request,
   UseGuards,
+  Request as Req,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { AuthCredentialsDto } from './dto/auth-credentials.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
+import { ExceptionMessages } from './constants/exception-messages';
+import { Routes } from './constants/routes';
+import { UserRequest } from './interfaces/user-request.interface';
 
-@Controller('auth')
+@Controller(Routes.AUTH)
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('sign-up')
-  async signUp(@Body() body) {
-    const { email, password, fullName } = body;
-    return this.authService.signUp(email, password, fullName);
+  @Post(Routes.SIGN_UP)
+  async signUp(@Body() authCredentialsDto: AuthCredentialsDto) {
+    return this.authService.signUp(
+      authCredentialsDto.email,
+      authCredentialsDto.password,
+      authCredentialsDto.fullName,
+    );
   }
 
-  @Post('sign-in')
-  async signIn(@Body() body) {
-    const { email, password } = body;
-    return this.authService.signIn(email, password);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('authenticated-user')
-  getAuthenticatedUser(@Request() req) {
-    const user = this.authService.findUser(req.user.id);
-    return {
-      id: user.id,
-      fullName: user.fullName,
-      email: user.email,
-      createdAt: user.createdAt,
-    };
+  @Post(Routes.SIGN_IN)
+  async signIn(@Body() authCredentialsDto: AuthCredentialsDto) {
+    return this.authService.signIn(
+      authCredentialsDto.email,
+      authCredentialsDto.password,
+    );
   }
 
   @UseGuards(JwtAuthGuard)
-  @Delete('authenticated-user')
-  deleteAuthenticatedUser(@Request() req) {
-    return this.authService.deleteUser(req.user.id);
+  @Get(Routes.AUTHENTICATED_USER)
+  async getAuthenticatedUser(@Req() req: UserRequest) {
+    const user = await this.authService.findUser(req.user.id);
+    if (!user) {
+      throw new BadRequestException(ExceptionMessages.USER_NOT_FOUND);
+    }
+    return user;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete(Routes.AUTHENTICATED_USER)
+  async deleteAuthenticatedUser(@Req() req: UserRequest) {
+    return await this.authService.deleteUser(req.user.id);
   }
 }
