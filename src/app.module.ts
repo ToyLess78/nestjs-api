@@ -16,6 +16,9 @@ import { Trip } from './trips/entities/trip.entity';
       database: process.env.DB_NAME,
       entities: [User, Trip],
       synchronize: true,
+      ssl: {
+        rejectUnauthorized: false,
+      },
     }),
     AuthModule,
     TripModule,
