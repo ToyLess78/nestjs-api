@@ -5,6 +5,7 @@ import { AuthModule } from './auth/auth.module';
 import { TripModule } from './trips/trip.module';
 import { User } from './auth/entities/user.entity';
 import { Trip } from './trips/entities/trip.entity';
+import { config } from './auth/constants/config';
 
 @Module({
   imports: [
@@ -15,12 +16,9 @@ import { Trip } from './trips/entities/trip.entity';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        const databaseUrl = configService.get<string>('DATABASE_URL');
-        console.log('DATABASE_URL from ConfigService:', databaseUrl);
-
         return {
           type: 'postgres',
-          url: databaseUrl,
+          url: config(configService).databaseUrl,
           autoLoadEntities: true,
           synchronize: true,
           entities: [User, Trip],
