@@ -14,16 +14,21 @@ import { Trip } from './trips/entities/trip.entity';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        url: configService.get<string>('DATABASE_URL'),
-        autoLoadEntities: true,
-        synchronize: true,
-        entities: [User, Trip],
-        ssl: {
-          rejectUnauthorized: false,
-        },
-      }),
+      useFactory: (configService: ConfigService) => {
+        const databaseUrl = configService.get<string>('DATABASE_URL');
+        console.log('DATABASE_URL from ConfigService:', databaseUrl);
+
+        return {
+          type: 'postgres',
+          url: databaseUrl,
+          autoLoadEntities: true,
+          synchronize: true,
+          entities: [User, Trip],
+          ssl: {
+            rejectUnauthorized: false,
+          },
+        };
+      },
     }),
     AuthModule,
     TripModule,
