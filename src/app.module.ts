@@ -9,7 +9,7 @@ import { Trip } from './trips/entities/trip.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      url: process.env.DATABASE_URL,
+      url: process.env.DATABASE_PUBLIC_URL,
       autoLoadEntities: true,
       synchronize: true,
       entities: [User, Trip],
