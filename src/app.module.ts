@@ -9,13 +9,10 @@ import { Trip } from './trips/entities/trip.entity';
   imports: [
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: process.env.PGHOST,
-      port: parseInt(process.env.PGPORT, 10),
-      username: process.env.PGUSER,
-      password: process.env.PGPASSWORD,
-      database: process.env.PGDATABASE,
-      entities: [User, Trip],
+      url: process.env.DATABASE_URL,
+      autoLoadEntities: true,
       synchronize: true,
+      entities: [User, Trip],
       ssl: {
         rejectUnauthorized: false,
       },
