@@ -1,6 +1,3 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
-
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
@@ -17,6 +14,5 @@ async function bootstrap() {
   );
 
   await app.listen(3000);
-  console.log('DATABASE_URL:', process.env.DATABASE_URL);
 }
 bootstrap();

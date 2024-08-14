@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { TripModule } from './trips/trip.module';
@@ -7,15 +8,22 @@ import { Trip } from './trips/entities/trip.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      url: process.env.DATABASE_URL,
-      autoLoadEntities: true,
-      synchronize: true,
-      entities: [User, Trip],
-      ssl: {
-        rejectUnauthorized: false,
-      },
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('DATABASE_URL'),
+        autoLoadEntities: true,
+        synchronize: true,
+        entities: [User, Trip],
+        ssl: {
+          rejectUnauthorized: false,
+        },
+      }),
     }),
     AuthModule,
     TripModule,
