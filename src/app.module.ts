@@ -6,6 +6,8 @@ import { TripModule } from './trips/trip.module';
 import { User } from './auth/entities/user.entity';
 import { Trip } from './trips/entities/trip.entity';
 import { config } from './auth/constants/config';
+import { Booking } from './bookings/entities/bookings.entity';
+import { BookingModule } from './bookings/booking.module';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { config } from './auth/constants/config';
           url: config(configService).databaseUrl,
           autoLoadEntities: true,
           synchronize: true,
-          entities: [User, Trip],
+          entities: [User, Trip, Booking],
           ssl: {
             rejectUnauthorized: false,
           },
@@ -30,6 +32,7 @@ import { config } from './auth/constants/config';
     }),
     AuthModule,
     TripModule,
+    BookingModule,
   ],
 })
 export class AppModule {}
