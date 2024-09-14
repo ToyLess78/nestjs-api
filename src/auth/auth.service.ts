@@ -5,7 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { ExceptionMessages } from './constants/exception-messages';
-import { UserDto } from './interfaces/auth-response.interface';
+import { UserDto } from './interfaces/user.dto';
 
 @Injectable()
 export class AuthService {
