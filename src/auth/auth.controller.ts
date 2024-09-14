@@ -23,7 +23,7 @@ import {
 } from '@nestjs/swagger';
 import { SignUpUserDto } from './interfaces/sign-up-user.dto';
 import { SignInUserDto } from './interfaces/sign-in-user.dto';
-import { UserDto } from './interfaces/user.dto'; // Імпортуйте UserDto
+import { UserDto } from './interfaces/user.dto';
 
 @ApiTags('auth')
 @Controller(Routes.AUTH)
@@ -33,7 +33,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Sign up a new user' })
   @ApiCreatedResponse({
     description: 'A user object and token',
-    type: UserDto, // Використання типу UserDto
+    type: UserDto,
   })
   @ApiBody({ type: SignUpUserDto })
   @Post(Routes.SIGN_UP)
@@ -48,7 +48,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Sign in an existing user' })
   @ApiOkResponse({
     description: 'A user object and token',
-    type: UserDto, // Використання типу UserDto
+    type: UserDto,
   })
   @ApiBody({ type: SignInUserDto })
   @Post(Routes.SIGN_IN)
@@ -60,7 +60,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get authenticated user' })
   @ApiOkResponse({
     description: 'A user object',
-    type: UserDto, // Використання типу UserDto
+    type: UserDto,
   })
   @UseGuards(JwtAuthGuard)
   @Get(Routes.AUTHENTICATED_USER)
